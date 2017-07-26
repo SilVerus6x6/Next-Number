@@ -2,10 +2,11 @@
 #include <conio.h>
 #include <vector>
 #include <chrono>
-void rob2(std::string &t, int n) {
-	for (int i = n; i < t.length(); i++) {
-		for (int j = i+1; j < t.length(); j++) {
-			if (t[j] < t[i]) {
+#include <string>
+void rob2(std::string &t, int n, int tr=0) {
+	for (unsigned int i = n; i < t.length(); i++) {
+		for (unsigned int j = i+1; j < t.length(); j++) {
+			if ((t[j] < t[i]&&tr==0)||(t[j]>t[i]&&tr==1)) {
 				char tmp = t[i];
 				t[i] = t[j];
 				t[j] = tmp;
@@ -13,14 +14,14 @@ void rob2(std::string &t, int n) {
 		}
 	}
 }
-int rob(std::string &t) {
-	for (int i = t.length()-1; i >= 0; i--) {
-		for (int j = i-1; j >= 0; j--) {
-			if (t[j] < t[i]) {
+int rob(std::string &t, unsigned int tr=0) {
+	for (unsigned int i = t.length()-1; i >= tr; i--) {
+		for (unsigned int j = i-1; j >= tr; j--) {
+			if ((t[j] < t[i]&&tr==0)||(t[j]>t[i]&&tr==1)) {
 				char tmp = t[i];
 				t[i] = t[j];
 				t[j] = tmp;
-				rob2(t, j+1);
+				rob2(t, j+1,tr);
 				return 1;
 			}
 		}
@@ -43,18 +44,42 @@ void start(std::vector<std::string>&l) {
 }
 void main() {
 	std::vector<std::string> liczby;
-	liczby.reserve(5);
-	start(liczby);
+	int ilosc = 0;
+	std::string liczba;
+	std::cout << "How many numbers to check (0 for example): ";
+	std::cin >> ilosc;
+	while (std::cin.fail()||ilosc<0){
+		std::cin.clear();
+		std::cin.ignore(256, '\n');
+		system("cls");
+		std::cout << "How many numbers to check (0 for example): ";
+		std::cin >> ilosc;
+	}
+	if (ilosc == 0) {
+		liczby.reserve(5);
+		start(liczby);
+	}
+	else {
+		liczby.reserve(ilosc);
+		for (int i = 0; i < ilosc; i++) {
+			std::cout << "Enter next number (" << i + 1 << "): ";
+			std::cin >> liczba;
+			liczby.push_back(liczba);
+		}
+	}
 	int s = 0;
 	int licznik = 0;
+	int tryb = 0;
 	std::string t = "";
-	for (int i = 0; i < liczby.size(); i++) {
+	for (unsigned int i = 0; i < liczby.size(); i++) {
+		tryb = 0;
+		if (liczby[i][0] == '-')tryb = 1;
 		system("cls");
 		licznik = 0;
 		std::chrono::high_resolution_clock::time_point tstart = std::chrono::high_resolution_clock::now();
 		do {
 			std::cout << liczby[i].c_str() << std::endl;
-			s = rob(liczby[i]);
+			s = rob(liczby[i],tryb);
 			licznik++;
 		} while (s == 1);
 		std::chrono::high_resolution_clock::time_point tstop = std::chrono::high_resolution_clock::now();
